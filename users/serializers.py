@@ -42,3 +42,16 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=20)
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        if not username or not password:
+            raise serializers.ValidationError('아이디와 비밀번호를 모두 입력해주세요.')
+
+        return data
