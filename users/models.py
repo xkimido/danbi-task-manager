@@ -1,16 +1,15 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import BaseUserManager, AbstractUser
 
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, email, name, password):
-        if not email:
-            raise ValueError("이메일을 다시 확인해 주세요.")
+    def create_user(self, username, team, password=None):
+        if not username:
+            raise ValueError("The given username must be set")
         
         user = self.model(
-            email=self.nomalize_email(email),
-            name=name,
+            username=username,
             team=team
         )
         user.set_password(password)
@@ -18,24 +17,25 @@ class UserManager(BaseUserManager):
 
         return user
     
-    def create_superuser(self, email, name, password):
-        user = self.create_user(email, name=name, password=password)
-        user.is_superuser = True
-        user.is_staff = True
+    def create_superuser(self, username, password=None):
+        user = self.create_user(
+            username,
+            password=password,
+            is_staff=True,
+            is_superuser=True
+        )
         user.save(using=self._db)
 
         return user
 
 
-class User(AbstractBaseUser):
-
-    email = models.EmailField(verbose_name="email address", unique=True, max_length=255)
-    name = models.CharField(max_length=255)
+class User(AbstractUser):
     team = models.CharField(max_length=255)
-    is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["name"]
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = []
 
     objects = UserManager()
