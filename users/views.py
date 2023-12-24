@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
 from .serializers import UserRegisterSerializer, LoginSerializer
 
 
@@ -35,3 +35,10 @@ class Login(APIView):
                 return Response({'message': '아이디와 비밀번호를 확인해 주세요.'})
         else: 
             return Response({'message': serializer.errors['password']})
+
+
+class Logout(APIView):
+
+    def post(self, request):
+        logout(request)
+        return Response({'message': '로그아웃 성공', 'redirect': '/'}, status=status.HTTP_200_OK )
